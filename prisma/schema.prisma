@@ -14,16 +14,62 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+model User {
+    id String @id @default(cuid())
+    name String?
+    email String? @unique
+    image String?
+
+    // User profile fields
+    username String @unique
+    avatarUrl String?
+    wins Int @default(0)
+    losses Int @default(0)
+    battlesAsP1 Battle[] @relation("player1")
+    battlesAsP2 Battle[] @relation("player2")
+    votesAsVoter Vote[] @relation("voter")
+    votesAsVotedFor Vote[] @relation("votedFor")
+    battlesWon Battle[] @relation("winner")
+    sessions Session[]
+    accounts Account[]
+}
+
+model MoodWave {
+    id Int @id @default(autoincrement())
+    name String @unique
+    description String?
+    battles Battle[]
+}
+
+model Battle {
+    id String @id @default(uuid())
+    moodWaveId Int
+    status String @default("waiting")
+    player1Id String
+    player2Id String?
+    player1Code String?
+    player2Code String?
+    winnerId String?
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+    moodWave MoodWave @relation(fields: [moodWaveId], references: [id], onDelete: Cascade)
+    player1 User @relation("player1", fields: [player1Id], references: [id], onDelete: Cascade)
+    player2 User? @relation("player2", fields: [player2Id], references: [id], onDelete: Cascade)
+    winner User? @relation("winner", fields: [winnerId], references: [id], onDelete: Cascade)
+    votes Vote[]
+}
 
-    @@index([name])
+model Vote {
+    id String @id @default(uuid())
+    battleId String
+    voterId String
+    votedForPlayerId String
+    createdAt DateTime @default(now())
+
+    battle Battle @relation(fields: [battleId], references: [id], onDelete: Cascade)
+    voter User @relation("voter", fields: [voterId], references: [id], onDelete: Cascade)
+    votedForPlayer User @relation("votedFor", fields: [votedForPlayerId], references: [id], onDelete: Cascade)
+    @@unique([battleId, voterId])
 }
 
 // Necessary for Next auth
@@ -52,17 +98,6 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
 }
 
 model VerificationToken {
