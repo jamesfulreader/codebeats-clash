@@ -1,6 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+:root {
+  --neon-cyan: #00fff7;
+  --neon-magenta: #ff00ff;
+  --neon-lime: #a8ff00;
+  --bg-dark: #0a0a0a;
+}
+
+.text-neon-cyan {
+  color: var(--neon-cyan);
+}
+.text-neon-magenta {
+  color: var(--neon-magenta);
+}
+.text-neon-lime {
+  color: var(--neon-lime);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-dark);
+    color: var(--neon-cyan);
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    text-shadow:
+      0 0 4px var(--neon-cyan),
+      0 0 8px var(--neon-cyan),
+      0 0 16px var(--neon-cyan);
+  }
+  .glow-magenta {
+    text-shadow:
+      0 0 4px var(--neon-magenta),
+      0 0 8px var(--neon-magenta),
+      0 0 16px var(--neon-magenta);
+  }
+  .glow-lime {
+    text-shadow:
+      0 0 4px var(--neon-lime),
+      0 0 8px var(--neon-lime),
+      0 0 16px var(--neon-lime);
+  }
 }
