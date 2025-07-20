@@ -29,10 +29,10 @@ export default async function Navbar() {
                 About
               </Link>
               <Link
-                href="/leaderboard"
+                href="/profile"
                 className="hover:[text-shadow:0_0_4px_var(--neon-magenta),0_0_8px_var(--neon-magenta),0_0_16px_var(--neon-magenta)]"
               >
-                Leaderboard
+                Profile
               </Link>
               <Link
                 href="/api/auth/signout"

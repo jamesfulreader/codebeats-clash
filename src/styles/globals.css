@@ -26,7 +26,7 @@
 @layer base {
   body {
     background-color: var(--bg-dark);
-    color: var(--neon-cyan);
+    color: white;
   }
 }
 
