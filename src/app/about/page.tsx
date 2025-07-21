@@ -20,7 +20,7 @@ export default function AboutPage() {
       </p>
       <p className="mt-8 text-lg">
         <a
-          href="https://github.com/yourrepo"
+          href="https://github.com/jamesfulreader/codebeats-clash"
           className="hover:text-neon-lime underline"
           target="_blank"
           rel="noreferrer"

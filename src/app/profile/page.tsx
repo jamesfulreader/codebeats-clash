@@ -1,21 +1,61 @@
-import { auth } from "~/server/auth";
+"use client";
 
-export default async function ProfilePage() {
-  const session = await auth();
-  if (!session?.user) {
+import { useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
+
+export default function ProfilePage() {
+  const { data: session, status } = useSession();
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = api.profile.getProfile.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
+
+  if (status === "loading" || isLoading) {
     return (
-      <div className="container mx-auto max-w-lg justify-center space-y-6 p-8">
+      <div className="container mx-auto p-8">
+        <p className="text-neon-cyan">Loading…</p>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="container mx-auto flex justify-center p-8">
         <p className="glow-cyan text-2xl">
-          You must be signed in to view this page
+          You must sign in with Discord to view your DJ profile
         </p>
       </div>
     );
   }
+
+  if (isError || !profile) {
+    return (
+      <div className="container mx-auto p-8">
+        <p className="text-red-500">Failed to load profile.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto max-w-lg space-y-6 p-8">
-      <h1 className="glow-magenta text-4xl font-medium">Profile</h1>
-      <p>Welcome back {session.user.name}!</p>
-      <p>Your stats:</p>
+      <h1 className="glow-cyan text-4xl font-medium">DJ Profile</h1>
+      <p>
+        <span className="font-semibold">Name:</span>{" "}
+        {profile.name ?? profile.username}
+      </p>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded bg-gray-800 p-4">
+          <h2 className="text-xl">Wins</h2>
+          <p className="text-neon-lime text-2xl">{profile.wins}</p>
+        </div>
+        <div className="rounded bg-gray-800 p-4">
+          <h2 className="text-xl">Losses</h2>
+          <p className="text-neon-magenta text-2xl">{profile.losses}</p>
+        </div>
+      </div>
     </div>
   );
 }

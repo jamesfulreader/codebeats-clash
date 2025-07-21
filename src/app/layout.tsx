@@ -18,6 +18,7 @@ const geist = Geist({
 
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
+import { Providers } from "./providers";
 
 export default function RootLayout({
   children,
@@ -26,7 +27,9 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <Navbar />
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Providers>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </Providers>
         <Footer />
       </body>
     </html>
