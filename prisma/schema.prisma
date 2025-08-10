@@ -2,108 +2,167 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id String @id @default(cuid())
-    name String?
-    email String? @unique
-    image String?
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+  image String?
 
-    // User profile fields
-    emailVerified String?
-    avatarUrl String?
-    wins Int @default(0)
-    losses Int @default(0)
-    battlesAsP1 Battle[] @relation("player1")
-    battlesAsP2 Battle[] @relation("player2")
-    votesAsVoter Vote[] @relation("voter")
-    votesAsVotedFor Vote[] @relation("votedFor")
-    battlesWon Battle[] @relation("winner")
-    sessions Session[]
-    accounts Account[]
+  // User profile fields
+  emailVerified   String?
+  avatarUrl       String?
+  wins            Int        @default(0)
+  losses          Int        @default(0)
+  battlesAsP1     Battle[]   @relation("player1")
+  battlesAsP2     Battle[]   @relation("player2")
+  votesAsVoter    Vote[]     @relation("voter")
+  votesAsVotedFor Vote[]     @relation("votedFor")
+  battlesWon      Battle[]   @relation("winner")
+  sessions        Session[]
+  accounts        Account[]
+  messages        Message[]
+  polls           Poll[]
+  PollVote        PollVote[]
 }
 
 model MoodWave {
-    id Int @id @default(autoincrement())
-    name String @unique
-    description String?
-    battles Battle[]
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  battles     Battle[]
 }
 
 model Battle {
-    id String @id @default(uuid())
-    moodWaveId Int
-    status String @default("waiting")
-    player1Id String
-    player2Id String?
-    player1Code String?
-    player2Code String?
-    winnerId String?
-    createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  moodWaveId  Int
+  status      String   @default("waiting")
+  player1Id   String
+  player2Id   String?
+  player1Code String?
+  player2Code String?
+  winnerId    String?
+  createdAt   DateTime @default(now())
 
-    moodWave MoodWave @relation(fields: [moodWaveId], references: [id], onDelete: Cascade)
-    player1 User @relation("player1", fields: [player1Id], references: [id], onDelete: Cascade)
-    player2 User? @relation("player2", fields: [player2Id], references: [id], onDelete: Cascade)
-    winner User? @relation("winner", fields: [winnerId], references: [id], onDelete: Cascade)
-    votes Vote[]
+  moodWave MoodWave @relation(fields: [moodWaveId], references: [id], onDelete: Cascade)
+  player1  User     @relation("player1", fields: [player1Id], references: [id], onDelete: Cascade)
+  player2  User?    @relation("player2", fields: [player2Id], references: [id], onDelete: Cascade)
+  winner   User?    @relation("winner", fields: [winnerId], references: [id], onDelete: Cascade)
+  votes    Vote[]
 }
 
 model Vote {
-    id String @id @default(uuid())
-    battleId String
-    voterId String
-    votedForPlayerId String
-    createdAt DateTime @default(now())
+  id               String   @id @default(uuid())
+  battleId         String
+  voterId          String
+  votedForPlayerId String
+  createdAt        DateTime @default(now())
 
-    battle Battle @relation(fields: [battleId], references: [id], onDelete: Cascade)
-    voter User @relation("voter", fields: [voterId], references: [id], onDelete: Cascade)
-    votedForPlayer User @relation("votedFor", fields: [votedForPlayerId], references: [id], onDelete: Cascade)
-    @@unique([battleId, voterId])
+  battle         Battle @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  voter          User   @relation("voter", fields: [voterId], references: [id], onDelete: Cascade)
+  votedForPlayer User   @relation("votedFor", fields: [votedForPlayerId], references: [id], onDelete: Cascade)
+
+  @@unique([battleId, voterId])
+}
+
+model Poll {
+  id        String       @id @default(cuid())
+  question  String
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  votes     PollVote[]
+  isOpen    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  endsAt    DateTime?
+  Message   Message[]
+
+  @@index([authorId])
+}
+
+model PollOption {
+  id     String     @id @default(cuid())
+  text   String
+  pollId String
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+  order  Int?
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([optionId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  text      String
+  authorId  String
+  pollId    String? // optional: if null -> global chat
+  createdAt DateTime @default(now())
+
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  poll   Poll? @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@index([pollId])
+  @@index([authorId])
 }
 
 // Necessary for Next auth
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? // @db.Text
+  access_token             String? // @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? // @db.Text
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
