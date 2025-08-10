@@ -15,8 +15,8 @@ export default function ProfilePage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="container mx-auto p-8">
-        <p className="text-neon-cyan">Loading…</p>
+      <div className="flex justify-center p-8">
+        <p className="glow-cyan text-2xl">Loading Profile. . .</p>
       </div>
     );
   }
@@ -40,11 +40,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-lg space-y-6 p-8">
+    <div className="container mx-auto h-screen max-w-lg space-y-6 p-8">
       <h1 className="glow-cyan text-4xl font-medium">DJ Profile</h1>
       <p>
-        <span className="font-semibold">Name:</span>{" "}
-        {profile.name ?? profile.username}
+        <span className="font-semibold">Name:</span> {profile.name}
       </p>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded bg-gray-800 p-4">

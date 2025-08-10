@@ -1,4 +1,4 @@
-import { auth } from "~/server/auth";
+import { auth, signIn, signOut } from "~/server/auth";
 import Link from "next/link";
 
 export default async function Navbar() {

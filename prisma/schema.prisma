@@ -21,7 +21,7 @@ model User {
     image String?
 
     // User profile fields
-    username String @unique
+    emailVerified String?
     avatarUrl String?
     wins Int @default(0)
     losses Int @default(0)

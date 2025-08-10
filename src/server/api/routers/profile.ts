@@ -7,7 +7,6 @@ export const profileRouter = createTRPCRouter({
       select: {
         id: true,
         name: true,
-        username: true,
         avatarUrl: true,
         wins: true,
         losses: true,
