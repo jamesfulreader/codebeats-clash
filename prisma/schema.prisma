@@ -21,7 +21,7 @@ model User {
   image String?
 
   // User profile fields
-  emailVerified   String?
+  emailVerified   DateTime?
   avatarUrl       String?
   wins            Int        @default(0)
   losses          Int        @default(0)
